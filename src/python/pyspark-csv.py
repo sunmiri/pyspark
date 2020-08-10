@@ -7,6 +7,9 @@ Created on Sun Aug  9 11:21:19 2020
 """
 #pyspark local run
 """
+https://spark.apache.org/docs/latest/api/python/pyspark.sql.html
+https://spark.apache.org/docs/latest/api/python/index.html
+
 Run:
 source /opt/codebase/PYTHON3/bin/activate 
 cd <your-path>/PySpark/
@@ -22,7 +25,7 @@ from pyspark import SparkContext, SparkConf
 from jproperties import Properties
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, ArrayType
 from pyspark.sql.functions import col
-
+from pyspark.sql.avro.functions import from_avro, to_avro
 
 class PySparkLocal:
     def __init__(self, **kwargs):
@@ -39,9 +42,19 @@ class PySparkLocal:
         self.file_location = kwargs.get("data.source.location")
         self.file_names = kwargs.get("data.source.files")
     
+    def mytransform(self, r):
+        print("transform::r:", r)
+
     def loadFiles(self):
         print("loadFiles")
         files = self.file_names.split(",")
+        
+        all_cust_rdd = self.spark.sparkContext.textFile(self.file_location + files[0])
+        print("loadFiles::all_cust_rdd (RDD):%s" % all_cust_rdd)
+        all_cust_rdd.foreach(lambda r: print("Row:", r))
+        all_cust_fmap_rdd = all_cust_rdd.flatMap(lambda r: r.split(","))
+        print("loadFiles::all_cust_fmap_rdd (RDD):%s" % all_cust_fmap_rdd)
+        all_cust_fmap_rdd.foreach(lambda c: print("Cell:", c))
 
         all_cust_df = self.readFile(filePath=self.file_location + files[0])
         active_cust_df = all_cust_df.filter(all_cust_df.active == 1)
@@ -59,11 +72,17 @@ class PySparkLocal:
 
         all_apps_df.createOrReplaceTempView("ALL_APPS")
         all_cust_apps_df.createOrReplaceTempView("ALL_CUST_APPS")
-        apps_custapps_join_df = self.spark.sql("select * from ALL_APPS aa, ALL_CUST_APPS aca where aa.id == aca.app_id and aca.active == 1")
+        apps_custapps_join_df = self.spark.sql("select aa.name as app_name, aa.id as app_id, aca.cust_id as cust_id, aca.active as cust_app_active from ALL_APPS aa, ALL_CUST_APPS aca where aa.id == aca.app_id and aa.active == 1")
         print("loadFiles::apps_custapps_join_df:%s" % (apps_custapps_join_df))
         apps_custapps_join_df.printSchema()
         apps_custapps_join_df.show()
-        print("loadFiles::groupBy::name:", apps_custapps_join_df.groupBy("name").count().show())
+        print("loadFiles::groupBy::name:")
+        apps_custapps_join_df.groupBy("app_name").count().show()
+        
+        apps_custapps_join_df.write.partitionBy("app_name").format("avro").mode("overwrite").save(self.file_location + "active_apps_custapps.avro")
+        print("loadFiles::Successfully written to avro file")
+        avro_oms_df = self.spark.read.format("avro").load(self.file_location + "active_apps_custapps.avro").where(col("app_name") == "OMS").show()
+        print("loadFiles::avro_oms_df::", avro_oms_df)
 
 
     def readFile(self, filePath):
