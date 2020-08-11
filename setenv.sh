@@ -1,4 +1,5 @@
-APP_HOME_DIR=$(dirname "$0")/../
+export APP_HOME_DIR=/mnt/c/Training/PySpark/pyspark
+#$(dirname "$0")/../
 cd $APP_HOME_DIR
 APP_HOME_DIR=$(pwd)
 
@@ -9,6 +10,9 @@ export PATH=$SPARK_HOME/python:$PATH
 echo "SPARK_HOME $SPARK_HOME"
 echo "PATH $PATH"
 
-source /opt/codebase/PYTHON3/bin/activate
-pip install pyspark
-pip install jproperties
+mkdir -p $APP_HOME_DIR/venv/
+python3 -m venv $APP_HOME_DIR/venv
+source $APP_HOME_DIR/venv/bin/activate
+python --version
+pip --version
+pip install pyspark jproperties

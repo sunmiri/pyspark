@@ -25,7 +25,6 @@ from pyspark import SparkContext, SparkConf
 from jproperties import Properties
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, ArrayType
 from pyspark.sql.functions import col
-from pyspark.sql.avro.functions import from_avro, to_avro
 
 class PySparkLocal:
     def __init__(self, **kwargs):
@@ -100,14 +99,20 @@ if __name__ == '__main__':
     #master = None, appName = None, sparkHome = None, pyFiles = None, 
     #environment = None, batchSize = 0, serializer = PickleSerializer(), 
     #conf = None, gateway = None, jsc = None, profiler_cls = <class 'pyspark.profiler.BasicProfiler'>
-    
-    kw = {}
-    configs = Properties()
-    with open('pyspark-csv.properties', 'rb') as config_file:
-        configs.load(config_file)
-    for p in configs:
-        print("P:Name:%s, Val:%s" % (p, configs.get(p).data))
-        kw[p] = configs.get(p).data
-    print("configs::%s" % configs)
+
+    kw = {
+        "spark.master":"local",
+        "spark.name":"MySpark-CSV",
+        "data.source.format":"csv",
+        "data.source.location":"s3://pyspark-sunil/data",
+        "data.source.files":"customers.csv,applications.csv,customer-applications.csv"
+    }
+    #configs = Properties()
+    #with open('pyspark-csv.properties', 'rb') as config_file:
+    #    configs.load(config_file)
+    #for p in configs:
+    #    print("P:Name:%s, Val:%s" % (p, configs.get(p).data))
+    #    kw[p] = configs.get(p).data
+    #print("configs::%s" % configs)
     psl = PySparkLocal(**kw)
     psl.loadFiles()

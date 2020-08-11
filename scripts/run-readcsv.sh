@@ -2,7 +2,9 @@ APP_HOME_DIR=$(dirname "$0")/../
 cd $APP_HOME_DIR
 APP_HOME_DIR=$(pwd)
 
-source /opt/codebase/PYTHON3/bin/activate
+source $APP_HOME_DIR/venv/bin/activate
+python --version
+pip --version
 
 cd $APP_HOME_DIR
 #sh $APP_HOME_DIR/setenv.sh
