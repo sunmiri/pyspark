@@ -8,7 +8,7 @@ echo "SPARK_HOME $SPARK_HOME"
 echo "PATH $PATH"
 
 cd $APP_HOME_DIR
-python3 -m venv venv
+#python3 -m venv venv
 source ./venv/bin/activate
 python --version
 pip --version
