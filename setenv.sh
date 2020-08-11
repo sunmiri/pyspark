@@ -1,4 +1,4 @@
-export APP_HOME_DIR=/Users/sunilmiriyala/CirrusSS/A-Cloud/Training/pyspark/
+APP_HOME_DIR=$(dirname "$0")/../
 echo "APP_HOME_DIR $APP_HOME_DIR"
 export SPARK_HOME=$APP_HOME_DIR/lib/spark-3.0.0-bin-hadoop3.2
 export PATH=$PATH:$APP_HOME_DIR/lib/spark-3.0.0-bin-hadoop3.2/bin
