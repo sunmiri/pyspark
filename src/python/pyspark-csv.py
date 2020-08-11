@@ -104,7 +104,7 @@ if __name__ == '__main__':
         "spark.master":"local",
         "spark.name":"MySpark-CSV",
         "data.source.format":"csv",
-        "data.source.location":"s3://pyspark-sunil/data",
+        "data.source.location":"s3://pyspark-sunil/data/",
         "data.source.files":"customers.csv,applications.csv,customer-applications.csv"
     }
     #configs = Properties()
