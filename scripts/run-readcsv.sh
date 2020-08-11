@@ -15,7 +15,7 @@ echo "PATH $PATH"
 
 cd $APP_HOME_DIR/src/python/
 #Option:1
-$SPARK_HOME/bin/spark-submit pyspark-csv.py $APP_HOME_DIR/src/python/pyspark-csv.properties
+$SPARK_HOME/bin/spark-submit --packages org.apache.spark:spark-avro_2.12:3.0.0 pyspark-csv.py $APP_HOME_DIR/src/python/pyspark-csv.properties
 
 #Option:2
 #pyspark pyspark-csv.py $APP_HOME_DIR/src/python/pyspark-csv.properties
