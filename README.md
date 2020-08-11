@@ -1,3 +1,25 @@
+GIT
+1: CLONE (one time)
+git clone https://github.com/sunmiri/pyspark.git
+
+2: Get Latest:
+cd <your dir>
+git pull
+
+3: Check-In & Commit
+git status
+>>Will list changes
+
+>>for-each change:
+git add <file-with-patch>
+
+>>Once ready to push/commit
+git commit -m "some verbose comment"
+git remote set-url origin https://sunmiri@github.com/sunmiri/pyspark.git
+git push
+===========
+
+
 Api: https://spark.apache.org/docs/latest/api/python/index.html
 
 Run as Py File:
