@@ -99,20 +99,26 @@ if __name__ == '__main__':
     #master = None, appName = None, sparkHome = None, pyFiles = None, 
     #environment = None, batchSize = 0, serializer = PickleSerializer(), 
     #conf = None, gateway = None, jsc = None, profiler_cls = <class 'pyspark.profiler.BasicProfiler'>
-
-    kw = {
+    """
         "spark.master":"local",
         "spark.name":"MySpark-CSV",
         "data.source.format":"csv",
         "data.source.location":"s3://pyspark-sunil/data/",
         "data.source.files":"customers.csv,applications.csv,customer-applications.csv"
-    }
-    #configs = Properties()
-    #with open('pyspark-csv.properties', 'rb') as config_file:
-    #    configs.load(config_file)
-    #for p in configs:
-    #    print("P:Name:%s, Val:%s" % (p, configs.get(p).data))
-    #    kw[p] = configs.get(p).data
-    #print("configs::%s" % configs)
+    """
+    import json
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--p", help="Properties File", dest='prop', required=True)
+    args = parser.parse_args()
+    kw = {}
+    configs = Properties()
+    with open(args.prop, 'rb') as config_file:
+        configs.load(config_file)
+    for p in configs:
+        print("P:Name:%s, Val:%s" % (p, configs.get(p).data))
+        kw[p] = configs.get(p).data
+    print("configs::%s" % configs)
     psl = PySparkLocal(**kw)
     psl.loadFiles()
