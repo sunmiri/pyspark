@@ -1,3 +1,4 @@
+0: aws-prep.sh/cmd
 1: aws kinesis put-record --stream-name pyspark-kinesis --cli-binary-format raw-in-base64-out --partition-key test --data '{"message":"hello","number":10}'
 2: Enhance Redshift table
 create table testtable (message varchar(256), number int);
