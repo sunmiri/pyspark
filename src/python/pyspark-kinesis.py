@@ -44,7 +44,7 @@ class MyPySparkApp:
         self.rsf_user=kwargs.get("sink.redshift_user","awsuser")
         self.rsf_pswd=kwargs.get("sink.redshift_pass",None)
         self.rsf_port=kwargs.get("sink.redshift_port",5439)
-        self.rsf_db=kwargs.get("sink.redshift_db","dev")
+        self.rsf_table=kwargs.get("sink.redshift_table","dev")
         self.rsf_jdbc_url=kwargs.get("sink.redshift_jdbc_url",None)
 
         
@@ -64,6 +64,7 @@ class MyPySparkApp:
     def initKinesis(self):
         print("initKinesis")
         self.kinesisStream = KinesisUtils.createStream(ssc=self.ssc, kinesisAppName=self.appname, streamName=self.kin_streamname, endpointUrl=self.kin_endurl, regionName=self.kin_region, initialPositionInStream=self.kin_start_pos, checkpointInterval=int(self.kin_chk_int))
+        print("initKinesis::kinesisStream::", self.kinesisStream)
 
     def readData(self):
         print("readData")
@@ -76,11 +77,11 @@ class MyPySparkApp:
                 rddDF.show()
                 #https://docs.databricks.com/data/data-sources/aws/amazon-redshift.html
                 #https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html
-                print("processRDD::writing records to AWS Redshift:u:%s,p:%s,d:%s,l:%s" % (self.rsf_user,self.rsf_pswd,self.rsf_db,self.rsf_jdbc_url))
+                print("processRDD::writing records to AWS Redshift:u:%s,p:%s,t:%s,j:%s" % (self.rsf_user,self.rsf_pswd,self.rsf_table,self.rsf_jdbc_url))
                 rddDF.write.mode("overwrite") \
                     .format("jdbc") \
                     .option("url", self.rsf_jdbc_url) \
-                    .option("dbtable", self.rsf_db) \
+                    .option("dbtable", self.rsf_table) \
                     .option("user", self.rsf_user) \
                     .option("password", self.rsf_pswd) \
                     .option("driver", "com.amazon.redshift.jdbc42.Driver") \
@@ -90,7 +91,7 @@ class MyPySparkApp:
     
     #https://docs.aws.amazon.com/redshift/latest/dg/t_creating_database.html
     #create table testtable (message varchar(256));
-    #insert into testtable values ("message");
+    #insert into testtable values ('message');
     def writeToRedshift(self):
         print("")
         #Regular Table

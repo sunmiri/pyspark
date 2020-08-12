@@ -27,9 +27,12 @@ echo "PATH $PATH"
 
 cd $APP_HOME_DIR/src/python/
 #Option:1
+aws s3 cp s3://pyspark-sunil/run/pyspark-kinesis.properties /tmp/
+
 $SPARK_HOME/bin/spark-submit --master local[4]\
     --jars "$APP_HOME_DIR/lib/*.jar" \
-    pyspark-kinesis.py --p $APP_HOME_DIR/scripts/pyspark-kinesis.properties
+    pyspark-kinesis.py --p /tmp/pyspark-kinesis.properties
+    #$APP_HOME_DIR/scripts/pyspark-kinesis.properties
 
 #Option:2
 #pyspark pyspark-csv.py $APP_HOME_DIR/src/python/pyspark-csv.properties

@@ -20,3 +20,5 @@ aws s3 cp aws_bootstrap.sh s3://pyspark-sunil/
 aws s3 cp --recursive data s3://pyspark-sunil/data
 aws s3 cp --recursive src/python s3://pyspark-sunil/run/
 aws s3 cp scripts/*.properties s3://pyspark-sunil/run/
+aws s3 cp lib/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar s3://pyspark-sunil/lib/
+aws s3 cp lib/spark-avro_2.12-3.0.0.jar s3://pyspark-sunil/lib/

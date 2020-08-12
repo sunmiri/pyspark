@@ -1,0 +1,13 @@
+1: aws kinesis put-record --stream-name pyspark-kinesis --cli-binary-format raw-in-base64-out --partition-key test --data '{"message":"hello","number":10}'
+2: Enhance Redshift table
+create table testtable (message varchar(256), number int);
+3: Enhance Py program to parse Json ({"message":"hello","number":10}) into 2 column DataFrame/RDD
+You may want to ust StructType
+myStructType = StructType()
+...
+...
+rddDF = self.spark.createDataFrame(rdd, myStructType)
+4: Run your program
+scripts/aws-runkinesis.sh (aws emr)
+or
+scripts/run-kinesis.sh (local)
