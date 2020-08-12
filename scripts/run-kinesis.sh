@@ -14,7 +14,8 @@ else
     pip install pyspark jproperties argparse json
 fi
 
-export AWS_ACCESS_KEY_ID=AKIA6AACCFDFGQHBQMNG
+#Runtime: it picks from <home>/.aws/credentials (aws configure)
+#export AWS_ACCESS_KEY_ID=AKIA6AACCFDFGQHBQMNG
 #export AWS_SECRET_ACCESS_KEY=
 export SPARK_HOME=$APP_HOME_DIR/lib/spark-3.0.0-bin-hadoop3.2
 export PATH=$PATH:$APP_HOME_DIR/lib/spark-3.0.0-bin-hadoop3.2/bin

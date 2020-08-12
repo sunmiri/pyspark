@@ -1,0 +1,1 @@
+aws kinesis put-record --stream-name pyspark-kinesis --cli-binary-format raw-in-base64-out --partition-key test --data "Hello World 12"
