@@ -1,5 +1,8 @@
 set APP_HOME_DIR=/Users/sunilmiriyala/CirrusSS/A-Cloud/Training/pyspark
 
+aws s3 cp %APP_HOME_DIR%/src/python/pyspark-kinesis.py s3://pyspark-sunil/run/
+aws s3 cp %APP_HOME_DIR%/scripts/pyspark-kinesis.properties s3://pyspark-sunil/run/
+
 rem Launch
 aws emr create-cluster --name "SparkStep-RunKinesis" ^
     --release-label emr-6.0.0 ^

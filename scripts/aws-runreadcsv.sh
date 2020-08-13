@@ -1,5 +1,8 @@
 APP_HOME_DIR=/Users/sunilmiriyala/CirrusSS/A-Cloud/Training/pyspark
 
+aws s3 cp $APP_HOME_DIR/src/python/pyspark-csv.py s3://pyspark-sunil/run/
+aws s3 cp $APP_HOME_DIR/scripts/pyspark-csv.properties s3://pyspark-sunil/run/
+
 #Launch
 aws emr create-cluster --name "SparkStep-RunCSV" \
     --release-label emr-6.0.0 \
