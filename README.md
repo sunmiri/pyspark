@@ -74,3 +74,12 @@ cd <your-path>/PySpark/spark-3.0.0-bin-hadoop3.2/bin
 Using Python version 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019 16:52:21)
 
 SparkSession available as 'spark'.
+
+
+FAQ:
+--SparkStream not reading data from Kinesis
+Ans: is kinesis.shards =1 , make sure to start your sparl.local=2. 1:2 ratio
+
+--Caused by: com.amazon.support.exceptions.GeneralException: [Amazon](500150) Error setting/closing connection: Operation timed out
+https://github.com/databricks/spark-redshift/issues/160
+https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#SecurityGroup:groupId=sg-d5018fee

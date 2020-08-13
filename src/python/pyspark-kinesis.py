@@ -75,17 +75,25 @@ class MyPySparkApp:
             if rdd and rdd.isEmpty() == False:
                 rddDF = self.spark.createDataFrame(rdd, StringType())
                 rddDF.show()
+                rddDF.describe()
                 #https://docs.databricks.com/data/data-sources/aws/amazon-redshift.html
                 #https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html
+                rddDF = rddDF.withColumnRenamed("value", "message")
+                rddDF.show()
+                rddDF.describe()
                 print("processRDD::writing records to AWS Redshift:u:%s,p:%s,t:%s,j:%s" % (self.rsf_user,self.rsf_pswd,self.rsf_table,self.rsf_jdbc_url))
-                rddDF.write.mode("overwrite") \
-                    .format("jdbc") \
-                    .option("url", self.rsf_jdbc_url) \
-                    .option("dbtable", self.rsf_table) \
-                    .option("user", self.rsf_user) \
-                    .option("password", self.rsf_pswd) \
-                    .option("driver", "com.amazon.redshift.jdbc42.Driver") \
-                    .save()
+                try:
+                    rddDF.write.mode("overwrite") \
+                        .format("jdbc") \
+                        .option("url", self.rsf_jdbc_url) \
+                        .option("dbtable", self.rsf_table) \
+                        .option("user", self.rsf_user) \
+                        .option("password", self.rsf_pswd) \
+                        .option("driver", "com.amazon.redshift.jdbc42.Driver") \
+                        .save()
+                    print("processRDD::successfully wrote the df")
+                except Exception as ex:
+                    print("processRDD::Exception writing the df:", rddDF, ex)
             
         self.kinesisStream.foreachRDD(lambda r: processRDD(r))
     
