@@ -17,8 +17,9 @@ from pyspark.storagelevel import StorageLevel
 from pyspark.sql.types import Row
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
-from pyspark.sql.types import StringType
+from pyspark.sql.types import *
 
+#https://spark.apache.org/docs/latest/api/python/index.html
 #http://spark.apache.org/docs/latest/streaming-kinesis-integration.html
 
 #https://docs.aws.amazon.com/cli/latest/reference/kinesis/put-record.html
@@ -35,10 +36,10 @@ class MyPySparkApp:
         self.kin_streamname=kwargs.get("data.source.kinesis.streamname", "MyPySparkKinesis")
         self.kin_endurl=kwargs.get("data.source.kinesis.endpointurl", "https://kinesis.us-east-1.amazonaws.com")
         self.kin_region=kwargs.get("data.source.kinesis.region", "us-east-1")
-        self.kin_start_pos=kwargs.get("data.source.kinesis.startingposition", InitialPositionInStream.TRIM_HORIZON) #LATEST
+        self.kin_start_pos=kwargs.get("data.source.kinesis.startingposition", InitialPositionInStream.LATEST) #LATEST, TRIM_HORIZON
         #self.kin_aws_key=kwargs.get("data.source.kinesis.awsaccesskeyid", "")
         #self.kin_aws_scrt_key=kwargs.get("data.source.kinesis.awssecretkey", "")
-        self.kin_chk_int=kwargs.get("data.source.kinesis.checkpointinterval", 1000)
+        self.kin_chk_int=kwargs.get("data.source.kinesis.checkpointinterval", 10)
         self.batch_dur_sec=kwargs.get("spark.stream.batch.duration.secs", 5)
 
         self.rsf_user=kwargs.get("sink.redshift_user","awsuser")
@@ -68,33 +69,50 @@ class MyPySparkApp:
 
     def readData(self):
         print("readData")
-
+        
         def processRDD(rdd):
             print("processRDD::rdd:%s" % (rdd))
             #rdd.foreach(lambda r: print(r))
+                
             if rdd and rdd.isEmpty() == False:
-                rddDF = self.spark.createDataFrame(rdd, StringType())
-                rddDF.show()
-                rddDF.describe()
-                #https://docs.databricks.com/data/data-sources/aws/amazon-redshift.html
-                #https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html
-                rddDF = rddDF.withColumnRenamed("value", "message")
-                rddDF.show()
-                rddDF.describe()
-                print("processRDD::writing records to AWS Redshift:u:%s,p:%s,t:%s,j:%s" % (self.rsf_user,self.rsf_pswd,self.rsf_table,self.rsf_jdbc_url))
+                print("processRDD::rdd:", rdd)
+                rdd.foreach(lambda r: print(r))
+                
                 try:
-                    rddDF.write.mode("overwrite") \
-                        .format("jdbc") \
-                        .option("url", self.rsf_jdbc_url) \
-                        .option("dbtable", self.rsf_table) \
-                        .option("user", self.rsf_user) \
-                        .option("password", self.rsf_pswd) \
-                        .option("driver", "com.amazon.redshift.jdbc42.Driver") \
-                        .save()
-                    print("processRDD::successfully wrote the df")
+                    print("processRDD::Converting to Json")
+                    jsonRDD = rdd.map(json.loads)
+                    print("processRDD::jsonRDD:", jsonRDD)
+                    jsonRDD.foreach(lambda r: print(r))
+
+                    print("processRDD::Converting to New Struct")
+                    myStructType = StructType([StructField("message", StringType(), True), StructField("number", IntegerType(), True)])
+                    jsonRddDF = self.spark.createDataFrame(jsonRDD, myStructType)
+                    jsonRddDF.show()
+                    jsonRddDF.describe()
+                    #https://docs.databricks.com/data/data-sources/aws/amazon-redshift.html
+                    #https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html
+                    jsonRddDF = jsonRddDF.withColumnRenamed("value", "message")
+                    jsonRddDF.show()
+                    jsonRddDF.describe()
+                    print("processRDD::writing records to AWS Redshift:u:%s,p:%s,t:%s,j:%s" % (self.rsf_user,self.rsf_pswd,self.rsf_table,self.rsf_jdbc_url))
+                    try:
+                        jsonRddDF.write.mode("append") \
+                            .format("jdbc") \
+                            .option("url", self.rsf_jdbc_url) \
+                            .option("dbtable", self.rsf_table) \
+                            .option("user", self.rsf_user) \
+                            .option("password", self.rsf_pswd) \
+                            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
+                            .save()
+                        print("processRDD::successfully wrote the df")
+                    except Exception as ex:
+                        print("processRDD::Exception writing the df:", jsonRddDF, ex)
+                        
                 except Exception as ex:
-                    print("processRDD::Exception writing the df:", rddDF, ex)
-            
+                    print("processRDD::JSON-Decode-Error::", ex)
+                
+                
+
         self.kinesisStream.foreachRDD(lambda r: processRDD(r))
     
     #https://docs.aws.amazon.com/redshift/latest/dg/t_creating_database.html
