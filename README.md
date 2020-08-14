@@ -83,3 +83,16 @@ Ans: is kinesis.shards =1 , make sure to start your sparl.local=2. 1:2 ratio
 --Caused by: com.amazon.support.exceptions.GeneralException: [Amazon](500150) Error setting/closing connection: Operation timed out
 https://github.com/databricks/spark-redshift/issues/160
 https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#SecurityGroup:groupId=sg-d5018fee
+
+--SSH
+https://console.aws.amazon.com/ec2/home?region=us-east-1#SecurityGroup:group-id=sg-02cd8604cd14b690b
+Add Rule -> SSH -> MyIP
+
+--Yarn Logs
+>SSH to Master
+>yarn application -list
+>yarn logs -applicationId application_1597361407286_0001 > ~/application_1597361407286_0001.log
+>vi ~/application_1597361407286_0001.log
+
+20/08/13 23:31:55 ERROR ShardSyncTask: Caught exception while sync'ing Kinesis shards and leases
+com.amazonaws.services.kinesis.model.AmazonKinesisException: User: arn:aws:sts::962077010122:assumed-role/EMR_EC2_DefaultRole/i-04937587acf6ccf47 is not authorized to perform: kinesis:ListShards on resource: arn:aws:kinesis:us-east-1:962077010122:stream/pyspark-kinesis (Service: AmazonKinesis; Status Code: 400; Error Code: AccessDeniedException; Request ID: d57c3a72-f9fc-ac6c-82d3-f5d8614c8791)

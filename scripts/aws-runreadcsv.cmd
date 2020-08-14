@@ -1,17 +1,17 @@
-set APP_HOME_DIR=C:\Training\PySpark\pyspark
-aws s3 cp %APP_HOME_DIR%/src/python/pyspark-csv.py s3://pyspark-sunil/run/
-aws s3 cp %APP_HOME_DIR%/scripts/pyspark-csv.properties s3://pyspark-sunil/run/
+set APP_HOME_DIR=%APP_HOME_DIR%
+aws s3 cp %APP_HOME_DIR%\src\python\pyspark-csv.py s3://%AWS_BUCKET_NAME%/run/
+aws s3 cp %APP_HOME_DIR%\scripts\pyspark-csv.properties s3://%AWS_BUCKET_NAME%/run/
 
 rem Launch
 aws emr create-cluster --name "SparkStep-RunCSV" ^
     --release-label emr-6.0.0 ^
     --applications Name=Spark ^
-    --log-uri s3://pyspark-sunil/logs/ ^
+    --log-uri s3://%AWS_BUCKET_NAME%/logs/ ^
     --ec2-attributes KeyName=sunil-aws-emr-key-pair-east1 ^
     --instance-type m4.large ^
     --instance-count 2 ^
-    --bootstrap-actions Path=s3://pyspark-sunil/aws_bootstrap.sh ^
-    --steps Type=Spark,Name="Spark-Job-RunCSV",ActionOnFailure=CONTINUE,Args=[--deploy-mode,client,--master,yarn,s3://pyspark-sunil/run/pyspark-csv.py,--p,s3://pyspark-sunil/run/pyspark-csv.properties] ^
+    --bootstrap-actions Path=s3://%AWS_BUCKET_NAME%/aws_bootstrap.sh ^
+    --steps Type=Spark,Name="Spark-Job-RunCSV",ActionOnFailure=CONTINUE,Args=[--deploy-mode,client,--master,yarn,s3://%AWS_BUCKET_NAME%/run/pyspark-csv.py,--p,s3://%AWS_BUCKET_NAME%/run/pyspark-csv.properties] ^
     --use-default-roles ^
     --auto-terminate
 
