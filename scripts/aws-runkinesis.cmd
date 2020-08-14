@@ -8,7 +8,7 @@ aws emr create-cluster --name "SparkStep-RunKinesis" ^
     --release-label emr-6.0.0 ^
     --applications Name=Spark ^
     --log-uri s3://%AWS_BUCKET_NAME%/logs/ ^
-    --ec2-attributes KeyName=sunil-aws-emr-key-pair-east1 ^
+    --ec2-attributes KeyName=%KEY_PAIR_NAME% ^
     --instance-type m4.large ^
     --instance-count 2 ^
     --bootstrap-actions Path=s3://%AWS_BUCKET_NAME%/aws_bootstrap.sh ^
