@@ -13,13 +13,13 @@ cd %APP_HOME_DIR%
 if [[ -d "%APP_HOME_DIR%\venv" ]]
 then
     echo "Sourcing Python Virtual Env"
-    source %APP_HOME_DIR%\venv\bin\activate
+    %APP_HOME_DIR%\venv\scripts\activate.bat
 else
     echo "Creating Virtual Env in current dir %(pwd)"
     python3 -m venv venv
-    source %APP_HOME_DIR%\venv\bin\activate
+    %APP_HOME_DIR%\venv\scripts\activate.bat
 fi
-
+%APP_HOME_DIR%\venv\scripts\activate.bat
 python --version
 pip --version
 pip install pyspark jproperties argparse
