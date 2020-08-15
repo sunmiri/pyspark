@@ -1,5 +1,8 @@
 set APP_HOME_DIR=%APP_HOME_DIR%
 
+aws s3 cp %APP_HOME_DIR%/lib/RedshiftJDBC42-no-awssdk-1.2.45.1069.jar s3://%AWS_BUCKET_NAME%/lib/
+aws s3 cp %APP_HOME_DIR%/lib/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar s3://%AWS_BUCKET_NAME%/lib/
+
 aws s3 cp %APP_HOME_DIR%\src\python\pyspark-kinesis.py s3://%AWS_BUCKET_NAME%/run/
 aws s3 cp %APP_HOME_DIR%\scripts\pyspark-kinesis.properties s3://%AWS_BUCKET_NAME%/run/
 
@@ -12,7 +15,7 @@ aws emr create-cluster --name "SparkStep-RunKinesis" ^
     --instance-type m4.large ^
     --instance-count 2 ^
     --bootstrap-actions Path=s3://%AWS_BUCKET_NAME%/aws_bootstrap.sh ^
-    --steps Type=Spark,Name="Spark-Job-RunKinesis",ActionOnFailure=CONTINUE,Args=[--deploy-mode,client,--master,yarn,--num-executors,2,--executor-cores,2,--jars,s3://%AWS_BUCKET_NAME%/lib/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar,s3://%AWS_BUCKET_NAME%/run/pyspark-kinesis.py,--p,/tmp/pyspark-kinesis.properties] ^
+    --steps Type=Spark,Name="Spark-Job-RunKinesis",ActionOnFailure=CONTINUE,Args=[--deploy-mode,client,--master,yarn,--num-executors,2,--executor-cores,2,--jars,"s3://$AWS_BUCKET_NAME/lib/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar,s3://$AWS_BUCKET_NAME/lib/RedshiftJDBC42-no-awssdk-1.2.45.1069.jar",s3://$AWS_BUCKET_NAME/run/pyspark-kinesis.py,--p,/tmp/pyspark-kinesis.properties] ^
     --use-default-roles ^
     --auto-terminate
 

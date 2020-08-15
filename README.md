@@ -96,4 +96,9 @@ Add Rule -> SSH -> MyIP
 
 20/08/13 23:31:55 ERROR ShardSyncTask: Caught exception while sync'ing Kinesis shards and leases
 com.amazonaws.services.kinesis.model.AmazonKinesisException: User: arn:aws:sts::962077010122:assumed-role/EMR_EC2_DefaultRole/i-04937587acf6ccf47 is not authorized to perform: kinesis:ListShards on resource: arn:aws:kinesis:us-east-1:962077010122:stream/pyspark-kinesis (Service: AmazonKinesis; Status Code: 400; Error Code: AccessDeniedException; Request ID: d57c3a72-f9fc-ac6c-82d3-f5d8614c8791)
-Fix: IAM->EMR_EC2_DefaultRole -> Add Kinesis
+Fix: IAM->Roles->EMR_EC2_DefaultRole -> Attach Policies -> Add "AWSLambdaKinesisExecutionRole" and "AmazonKinesisFullAccess"
+
+--Redshift
+processRDD::writing records to AWS Redshift:u:awsuser,p:Training2020,t:public.testtable,j:jdbc:redshift://pyspark-redshift.cui3tprwjwcc.us-east-1.redshift.amazonaws.com:5439/dev?ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory
+processRDD::Exception writing the df: DataFrame[message: string, number: int] An error occurred while calling o7724.save.
+: java.lang.ClassNotFoundException: com.amazon.redshift.jdbc42.Driver
