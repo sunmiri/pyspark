@@ -1,4 +1,5 @@
 #!/bin/bash -xe
+export AWS_BUCKET_NAME=pyspark-sunil
 
 export SPARK_HOME=/usr/lib/spark
 export PYSPARK_PYTHON=/usr/bin/python3
@@ -9,5 +10,14 @@ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3 get-pip.py
 pip3 install pyspark jproperties
 
-aws s3 cp s3://pyspark-sunil/run/pyspark-kinesis.properties /tmp/
-aws s3 cp s3://pyspark-sunil/run/pyspark-csv.properties /tmp/
+aws s3 cp s3://$AWS_BUCKET_NAME/run/pyspark-kinesis.properties /tmp/
+aws s3 cp s3://$AWS_BUCKET_NAME/run/pyspark-csv.properties /tmp/
+
+#Making Application Dependencies available in workers
+if [[ -d "$SPARK_HOME" ]]
+then
+    aws s3 cp s3://$AWS_BUCKET_NAME/lib/RedshiftJDBC42-no-awssdk-1.2.45.1069.jar $SPARK_HOME/jars/
+    echo "Copied RedshiftJDBC42 Jar"
+else
+    echo "$SPARK_HOME is Not Available Yet"
+fi

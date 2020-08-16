@@ -78,12 +78,21 @@ class MyPySparkApp:
                 print("processRDD::rdd:", rdd)
                 rdd.foreach(lambda r: print(r))
                 
+                def transform(rdd):
+                    print("transform::rdd:", rdd, type(rdd))
+                    try:
+                        json_rdd = json.loads(rdd)
+                        print("transform::json_rdd:", json_rdd, type(json_rdd))
+                        return json_rdd
+                    except Exception as ex:
+                        print("transform::Exception parsing json:", rdd, ex)
+                    return None
+                
                 try:
                     print("processRDD::Converting to Json")
-                    jsonRDD = rdd.map(json.loads)
+                    jsonRDD = rdd.map(lambda r: transform(r)) #json.loads, lambda r: transform(r)
                     print("processRDD::jsonRDD:", jsonRDD)
                     jsonRDD.foreach(lambda r: print(r))
-
                     print("processRDD::Converting to New Struct")
                     myStructType = StructType([StructField("message", StringType(), True), StructField("number", IntegerType(), True)])
                     jsonRddDF = self.spark.createDataFrame(jsonRDD, myStructType)
@@ -91,9 +100,9 @@ class MyPySparkApp:
                     jsonRddDF.describe()
                     #https://docs.databricks.com/data/data-sources/aws/amazon-redshift.html
                     #https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html
-                    jsonRddDF = jsonRddDF.withColumnRenamed("value", "message")
-                    jsonRddDF.show()
-                    jsonRddDF.describe()
+                    #jsonRddDF = jsonRddDF.withColumnRenamed("value", "message")
+                    #jsonRddDF.show()
+                    #jsonRddDF.describe()
                     print("processRDD::writing records to AWS Redshift:u:%s,p:%s,t:%s,j:%s" % (self.rsf_user,self.rsf_pswd,self.rsf_table,self.rsf_jdbc_url))
                     try:
                         jsonRddDF.write.mode("append") \
@@ -110,7 +119,6 @@ class MyPySparkApp:
                         
                 except Exception as ex:
                     print("processRDD::JSON-Decode-Error::", ex)
-                
                 
 
         self.kinesisStream.foreachRDD(lambda r: processRDD(r))
