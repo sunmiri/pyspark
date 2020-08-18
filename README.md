@@ -113,4 +113,6 @@ processRDD::writing records to AWS Redshift:u:awsuser,p:Training2020,t:public.te
 processRDD::Exception writing the df: DataFrame[message: string, number: int] An error occurred while calling o2054.save.
 : java.sql.SQLException: [Amazon](500150) Error setting/closing connection: Connection timed out.
 Fix: https://console.aws.amazon.com/ec2/home?region=us-east-1#SecurityGroups:
-Add Redshift Inbound Rule to your Master/Driver/Core Security groups
+1: Add Redshift Inbound Rule to your Master/Driver/Core Security groups
+2: Redshift: https://console.aws.amazon.com/redshiftv2/home?region=us-east-1#modify-cluster?cluster=pyspark-redshift
+Redshift - pyspark-redshift -> Edit -> Network & Security -> Add default/master/core
