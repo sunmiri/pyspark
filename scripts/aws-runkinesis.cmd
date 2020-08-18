@@ -1,17 +1,17 @@
 set APP_HOME_DIR=%APP_HOME_DIR%
 set AWS_BUCKET_NAME=%AWS_BUCKET_NAME%
 set KEY_PAIR_NAME=%KEY_PAIR_NAME%
-#upload latest bootstrap and hdp-configs
+rem upload latest bootstrap and hdp-configs
 aws s3 cp %APP_HOME_DIR%\aws_bootstrap.sh s3://%AWS_BUCKET_NAME%/
 aws s3 cp %APP_HOME_DIR%\aws_hdp_config.json s3://%AWS_BUCKET_NAME%/
-#Upload needed jars in the s3
+rem Upload needed jars in the s3
 aws s3 cp %APP_HOME_DIR%\lib\RedshiftJDBC42-no-awssdk-1.2.45.1069.jar s3://%AWS_BUCKET_NAME%/lib/
 aws s3 cp %APP_HOME_DIR%\lib\spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar s3://%AWS_BUCKET_NAME%/lib/
 aws s3 cp %APP_HOME_DIR%\lib\spark-avro_2.12-3.0.0.jar s3://%AWS_BUCKET_NAME%/lib/
-#upload latest prop and file
+rem upload latest prop and file
 aws s3 cp %APP_HOME_DIR%\src\python\pyspark-kinesis.py s3://%AWS_BUCKET_NAME%/run/
 aws s3 cp %APP_HOME_DIR%\scripts\pyspark-kinesis.properties s3://%AWS_BUCKET_NAME%/run/
-# Launch
+rem  Launch
 aws emr create-cluster --name "SparkStep-RunKinesis" \
     --release-label emr-6.0.0 \
     --applications Name=Spark \
@@ -25,8 +25,8 @@ aws emr create-cluster --name "SparkStep-RunKinesis" \
     --use-default-roles \
     --auto-terminate
 
-# Check Status
+rem  Check Status
 aws emr list-clusters --active
 
-# Login
-# aws emr ssh --cluster-id j-3SD91U2E1L2QX --key-pair-file ~/.ssh/mykey.pem
+rem  Login
+rem  aws emr ssh --cluster-id j-3SD91U2E1L2QX --key-pair-file ~/.ssh/mykey.pem
