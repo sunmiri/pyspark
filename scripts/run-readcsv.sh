@@ -25,7 +25,7 @@ echo "PATH $PATH"
 cd $APP_HOME_DIR/src/python/
 #Option:1
 $SPARK_HOME/bin/spark-submit \
-    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0-preview2,org.apache.spark:spark-avro_2.12:3.0.0 \
+    --jars "$APP_HOME_DIR/lib/*.jar" \
     pyspark-csv.py --p $APP_HOME_DIR/scripts/pyspark-csv.properties
 
 #Option:2

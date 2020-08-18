@@ -102,3 +102,8 @@ Fix: IAM->Roles->EMR_EC2_DefaultRole -> Attach Policies -> Add "AWSLambdaKinesis
 processRDD::writing records to AWS Redshift:u:awsuser,p:Training2020,t:public.testtable,j:jdbc:redshift://pyspark-redshift.cui3tprwjwcc.us-east-1.redshift.amazonaws.com:5439/dev?ssl=true&sslfactory=com.amazon.redshift.ssl.NonValidatingFactory
 processRDD::Exception writing the df: DataFrame[message: string, number: int] An error occurred while calling o7724.save.
 : java.lang.ClassNotFoundException: com.amazon.redshift.jdbc42.Driver
+
+--ERROR InitializeTask: Caught exception: 
+com.amazonaws.services.kinesis.model.InvalidArgumentException: StartingSequenceNumber 49609879230115151499655128187750189741241516069757124610 used in GetShardIterator on shard shardId-000000000000 in stream pyspark-kinesis under account 641071679063 is invalid because it did not come from this stream. (Service: AmazonKinesis; Status Code: 400; Error Code: InvalidArgumentException; Request ID: c8e85103-6c66-bc13-9f5d-5fbd7ac97e04)
+Fix:
+Drop Kinesis Data Stream and Recreate - Make sure East-1

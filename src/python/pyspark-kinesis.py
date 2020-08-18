@@ -78,14 +78,14 @@ class MyPySparkApp:
                 print("processRDD::rdd:", rdd)
                 rdd.foreach(lambda r: print(r))
                 
-                def transform(rdd):
-                    print("transform::rdd:", rdd, type(rdd))
+                def transform(data):
+                    print("transform::data:", data, type(data))
                     try:
-                        json_rdd = json.loads(rdd)
-                        print("transform::json_rdd:", json_rdd, type(json_rdd))
-                        return json_rdd
+                        json_data = json.loads(data)
+                        print("transform::json_data:", json_data, type(json_data))
+                        return json_data
                     except Exception as ex:
-                        print("transform::Exception parsing json:", rdd, ex)
+                        print("transform::Exception parsing json:", data, ex)
                     return None
                 
                 try:
