@@ -26,7 +26,7 @@ if [[ -d "$SPARK_HOME" ]]
 then
     aws s3 cp s3://$AWS_BUCKET_NAME/lib/RedshiftJDBC42-no-awssdk-1.2.45.1069.jar $SPARK_HOME/jars/
     aws s3 cp s3://$AWS_BUCKET_NAME/lib/spark-avro_2.12-3.0.0.jar $SPARK_HOME/jars/
-    aws s3 cp s3://$AWS_BUCKET_NAME/lib/spark-streaming-kinesis-asl_2.12-3.0.0.jar /tmp/
+    aws s3 cp s3://$AWS_BUCKET_NAME/lib/spark-streaming-kinesis-asl_2.12-3.0.0.jar /jars/
     aws s3 cp s3://$AWS_BUCKET_NAME/lib/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar $SPARK_HOME/jars/
     aws s3 cp s3://$AWS_BUCKET_NAME/lib/spark-sql_2.12-3.0.0.jar $SPARK_HOME/jars/
     aws s3 cp s3://$AWS_BUCKET_NAME/lib/spark-catalyst_2.12-3.0.0.jar $SPARK_HOME/jars/

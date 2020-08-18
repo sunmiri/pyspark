@@ -15,17 +15,17 @@ aws s3 cp %APP_HOME_DIR%\lib\spark-avro_2.12-3.0.0.jar s3://%AWS_BUCKET_NAME%/li
 aws s3 cp %APP_HOME_DIR%\lib\spark-sql_2.12-3.0.0.jar s3://%AWS_BUCKET_NAME%/lib/
 aws s3 cp %APP_HOME_DIR%\lib\spark-catalyst_2.12-3.0.0.jar s3://%AWS_BUCKET_NAME%/lib/
 rem Launch
-aws emr create-cluster --name "SparkStep-RunCSV" \
-    --release-label emr-6.0.0 \
-    --applications Name=Spark \
-    --log-uri s3://%AWS_BUCKET_NAME%/logs/ \
-    --ec2-attributes KeyName=%KEY_PAIR_NAME% \
-    --instance-type m4.large \
-    --instance-count 2 \
-    --bootstrap-actions Path=s3://%AWS_BUCKET_NAME%/aws_bootstrap.sh \
-    --steps Type=Spark,Name="Spark-Job-RunCSV",ActionOnFailure=CONTINUE,Args=[--deploy-mode,cluster,--master,yarn,--jars,/tmp/*.jar,s3://%AWS_BUCKET_NAME%/run/pyspark-csv.py,--p,/tmp/pyspark-csv.properties] \
-    --configurations file://../aws_hdp_config.json \
-    --use-default-roles \
+aws emr create-cluster --name "SparkStep-RunCSV" ^
+    --release-label emr-6.0.0 ^
+    --applications Name=Spark ^
+    --log-uri s3://%AWS_BUCKET_NAME%/logs/ ^
+    --ec2-attributes KeyName=%KEY_PAIR_NAME% ^
+    --instance-type m4.large ^
+    --instance-count 2 ^
+    --bootstrap-actions Path=s3://%AWS_BUCKET_NAME%/aws_bootstrap.sh ^
+    --steps Type=Spark,Name="Spark-Job-RunCSV",ActionOnFailure=CONTINUE,Args=[--deploy-mode,cluster,--master,yarn,--jars,/tmp/*.jar,s3://%AWS_BUCKET_NAME%/run/pyspark-csv.py,--p,/tmp/pyspark-csv.properties] ^
+    --configurations file://..\aws_hdp_config.json ^
+    --use-default-roles ^
     --auto-terminate
 
 rem Check Status

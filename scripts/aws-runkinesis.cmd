@@ -15,17 +15,17 @@ rem upload latest prop and file
 aws s3 cp %APP_HOME_DIR%\src\python\pyspark-kinesis.py s3://%AWS_BUCKET_NAME%/run/
 aws s3 cp %APP_HOME_DIR%\scripts\pyspark-kinesis.properties s3://%AWS_BUCKET_NAME%/run/
 rem  Launch
-aws emr create-cluster --name "SparkStep-RunKinesis" \
-    --release-label emr-6.0.0 \
-    --applications Name=Spark \
-    --log-uri s3://%AWS_BUCKET_NAME%/logs/ \
-    --ec2-attributes KeyName=%KEY_PAIR_NAME% \
-    --instance-type m4.large \
-    --instance-count 2 \
-    --bootstrap-actions Path=s3://%AWS_BUCKET_NAME%/aws_bootstrap.sh \
-    --steps Type=Spark,Name="Spark-Job-RunKinesis",ActionOnFailure=CONTINUE,Args=[--deploy-mode,client,--master,yarn,--num-executors,2,--executor-cores,2,--jars,/tmp/*.jar,s3://%AWS_BUCKET_NAME%/run/pyspark-kinesis.py,--p,/tmp/pyspark-kinesis.properties] \
-    --configurations file://../aws_hdp_config.json \
-    --use-default-roles \
+aws emr create-cluster --name "SparkStep-RunKinesis" ^
+    --release-label emr-6.0.0 ^
+    --applications Name=Spark ^
+    --log-uri s3://%AWS_BUCKET_NAME%/logs/ ^
+    --ec2-attributes KeyName=%KEY_PAIR_NAME% ^
+    --instance-type m4.large ^
+    --instance-count 2 ^
+    --bootstrap-actions Path=s3://%AWS_BUCKET_NAME%/aws_bootstrap.sh ^
+    --steps Type=Spark,Name="Spark-Job-RunKinesis",ActionOnFailure=CONTINUE,Args=[--deploy-mode,client,--master,yarn,--num-executors,2,--executor-cores,2,--jars,/tmp/*.jar,s3://%AWS_BUCKET_NAME%/run/pyspark-kinesis.py,--p,/tmp/pyspark-kinesis.properties] ^
+    --configurations file://..\aws_hdp_config.json ^
+    --use-default-roles ^
     --auto-terminate
 
 rem  Check Status
