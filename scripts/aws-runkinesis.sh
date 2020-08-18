@@ -8,6 +8,7 @@ aws s3 cp $APP_HOME_DIR/aws_hdp_config.json s3://$AWS_BUCKET_NAME/
 aws s3 cp $APP_HOME_DIR/lib/RedshiftJDBC42-no-awssdk-1.2.45.1069.jar s3://$AWS_BUCKET_NAME/lib/
 aws s3 cp $APP_HOME_DIR/lib/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar s3://$AWS_BUCKET_NAME/lib/
 aws s3 cp $APP_HOME_DIR/lib/spark-avro_2.12-3.0.0.jar s3://$AWS_BUCKET_NAME/lib/
+aws s3 cp $APP_HOME_DIR/lib/spark-sql_2.12-3.0.0.jar s3://$AWS_BUCKET_NAME/lib/
 #upload latest prop and file
 aws s3 cp $APP_HOME_DIR/src/python/pyspark-kinesis.py s3://$AWS_BUCKET_NAME/run/
 aws s3 cp $APP_HOME_DIR/scripts/pyspark-kinesis.properties s3://$AWS_BUCKET_NAME/run/

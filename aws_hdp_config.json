@@ -1,0 +1,8 @@
+[
+    {
+        "Classification": "mapred-site",
+        "Properties": {
+            "mapreduce.application.classpath": "/tmp/RedshiftJDBC42-no-awssdk-1.2.45.1069.jar,/tmp/spark-avro_2.12-3.0.0.jar,/tmp/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar,/tmp/spark-sql_2.12-3.0.0.jar"
+        }
+    }
+]
