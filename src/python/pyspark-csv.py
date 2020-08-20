@@ -47,7 +47,7 @@ class PySparkLocal:
     def loadFiles(self):
         print("loadFiles")
         files = self.file_names.split(",")
-        
+        print("loadFiles::files:", files, ", path:", self.file_location)
         all_cust_rdd = self.spark.sparkContext.textFile(self.file_location + files[0])
         print("loadFiles::all_cust_rdd (RDD):%s" % all_cust_rdd)
         all_cust_rdd.foreach(lambda r: print("Row:", r))
