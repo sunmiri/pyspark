@@ -66,7 +66,12 @@ class MyPySparkApp:
         print("initKinesis")
         self.kinesisStream = KinesisUtils.createStream(ssc=self.ssc, kinesisAppName=self.appname, streamName=self.kin_streamname, endpointUrl=self.kin_endurl, regionName=self.kin_region, initialPositionInStream=self.kin_start_pos, checkpointInterval=int(self.kin_chk_int))
         print("initKinesis::kinesisStream::", self.kinesisStream)
+        
+
+    def readData(self):
+        print("readData")
         #Read from Prop 'public.dept'
+        """
         self.lookupTableDF = self.spark.read.format("jdbc") \
             .option("url", self.rsf_jdbc_url) \
             .option("dbtable", "public.dept") \
@@ -74,18 +79,17 @@ class MyPySparkApp:
             .option("password", self.rsf_pswd) \
             .option("driver", "com.amazon.redshift.jdbc42.Driver") \
             .load()
-        print("initKinesis::lookupTableDF::", self.lookupTableDF)
+        print("readData::lookupTableDF::", self.lookupTableDF)
         self.lookupTableDF.show()
         self.lookupTableDF.describe()
-        
-
-    def readData(self):
-        print("readData")
         lookupTable_pdf = self.lookupTableDF.toPandas()
         print("readData::jd:", lookupTable_pdf)
         pdf_j = lookupTable_pdf.to_json(orient="records")
-        broadcast_dept = self.sc.broadcast(json.loads(pdf_j)) #[{"id":1, "name": "dept-1"},{"id":2, "name": "dept-2"}])
-        print("initKinesis::broadcast_dept:", broadcast_dept, broadcast_dept.value)
+        """
+        pdf_j = [{"id":1, "name": "dept-1"},{"id":2, "name": "dept-2"},{"id":3, "name": "dept-3"}]
+        print("readData::pdf_j:", type(pdf_j))
+        broadcast_dept = self.sc.broadcast((pdf_j))
+        print("readData::broadcast_dept:", broadcast_dept, broadcast_dept.value)
 
         def processRDD(rdd, broadcast_dept):
             print("processRDD::rdd:%s" % (rdd))
@@ -104,12 +108,14 @@ class MyPySparkApp:
                         #brdcst_dept_record = broadcast_dept.value(json_data.get("number", 0))
                         #print("transform::broadcast_dept:", broadcast_dept.value)
                         json_data["dept_name"] = "None"
+                        print("transform::broadcast_dept:", type(broadcast_dept.value), broadcast_dept.value)
+                        """
                         for e in broadcast_dept.value:
-                            print("transform::broadcast_dept.val.e:", e.get("id"), ", json_data:", json_data.get("number"))
+                            #print("transform::broadcast_dept.val.e:", e.get("id"), ", json_data:", json_data.get("number"))
                             if int(e.get("id", 0)) == int(json_data.get("number", -1)):
-                                print("transform::------ MATCH FOUND --------")
                                 json_data["dept_name"] = e.get("name")
                                 break
+                        """
                         return json_data
                     except Exception as ex:
                         print("transform::Exception parsing json:", data, ex)
@@ -117,12 +123,20 @@ class MyPySparkApp:
                 
                 try:
                     print("processRDD::Converting to Json")
+                    
+                    deptStruct = StructType([StructField("id", IntegerType(), True), StructField("name", StringType(), True)])
+                    deptDF = self.spark.createDataFrame(data=broadcast_dept.value, schema = deptStruct)
+                    print("processRDD::deptDF:", deptDF)
+                    deptDF.show()
+                    deptDF.describe()
+                    
                     jsonRDD = rdd.map(lambda r: transform(r, broadcast_dept)) #json.loads, lambda r: transform(r)
                     print("processRDD::jsonRDD:", jsonRDD)
                     jsonRDD.foreach(lambda r: print(r))
                     print("processRDD::Converting to New Struct")
                     myStructType = StructType([StructField("message", StringType(), True), StructField("number", IntegerType(), True), StructField("dept_name", StringType(), True)])
                     jsonRddDF = self.spark.createDataFrame(jsonRDD, myStructType)
+                    print("processRDD::jsonRddDF:", jsonRddDF)
                     jsonRddDF.show()
                     jsonRddDF.describe()
                     #https://docs.databricks.com/data/data-sources/aws/amazon-redshift.html
@@ -130,6 +144,10 @@ class MyPySparkApp:
                     #jsonRddDF = jsonRddDF.withColumnRenamed("value", "message")
                     #jsonRddDF.show()
                     #jsonRddDF.describe()
+                    cond = [deptDF.id == jsonRddDF.number]
+                    jsonRddDF = jsonRddDF.join(deptDF, on=cond, how="leftouter").select(jsonRddDF.number, jsonRddDF.message, deptDF.name.alias("dept_name"))
+                    jsonRddDF.show()
+                    jsonRddDF.describe()
                     print("processRDD::writing records to AWS Redshift:u:%s,p:%s,t:%s,j:%s" % (self.rsf_user,self.rsf_pswd,self.rsf_table,self.rsf_jdbc_url))
                     try:
                         jsonRddDF.write.mode("append") \
