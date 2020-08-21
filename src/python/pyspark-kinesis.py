@@ -71,7 +71,6 @@ class MyPySparkApp:
     def readData(self):
         print("readData")
         #Read from Prop 'public.dept'
-        """
         self.lookupTableDF = self.spark.read.format("jdbc") \
             .option("url", self.rsf_jdbc_url) \
             .option("dbtable", "public.dept") \
@@ -85,10 +84,9 @@ class MyPySparkApp:
         lookupTable_pdf = self.lookupTableDF.toPandas()
         print("readData::jd:", lookupTable_pdf)
         pdf_j = lookupTable_pdf.to_json(orient="records")
-        """
-        pdf_j = [{"id":1, "name": "dept-1"},{"id":2, "name": "dept-2"},{"id":3, "name": "dept-3"}]
+        #pdf_j = [{"id":1, "name": "dept-1"},{"id":2, "name": "dept-2"},{"id":3, "name": "dept-3"}]
         print("readData::pdf_j:", type(pdf_j))
-        broadcast_dept = self.sc.broadcast((pdf_j))
+        broadcast_dept = self.sc.broadcast(json.loads(pdf_j))
         print("readData::broadcast_dept:", broadcast_dept, broadcast_dept.value)
 
         def processRDD(rdd, broadcast_dept):
