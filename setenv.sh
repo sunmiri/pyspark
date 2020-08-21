@@ -22,4 +22,4 @@ else
 fi
 python --version
 pip --version
-pip install pyspark jproperties argparse
+pip install pyspark jproperties findspark argparse pandas

@@ -26,4 +26,4 @@ IF EXISTS "%APP_HOME_DIR%\venv" (
 %APP_HOME_DIR%\venv\scripts\activate.bat
 python --version
 pip --version
-pip install pyspark jproperties argparse findspark
+pip install pyspark jproperties argparse findspark pandas

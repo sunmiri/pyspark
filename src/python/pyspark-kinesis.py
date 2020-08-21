@@ -66,23 +66,50 @@ class MyPySparkApp:
         print("initKinesis")
         self.kinesisStream = KinesisUtils.createStream(ssc=self.ssc, kinesisAppName=self.appname, streamName=self.kin_streamname, endpointUrl=self.kin_endurl, regionName=self.kin_region, initialPositionInStream=self.kin_start_pos, checkpointInterval=int(self.kin_chk_int))
         print("initKinesis::kinesisStream::", self.kinesisStream)
+        #Read from Prop 'public.dept'
+        self.lookupTableDF = self.spark.read.format("jdbc") \
+            .option("url", self.rsf_jdbc_url) \
+            .option("dbtable", "public.dept") \
+            .option("user", self.rsf_user) \
+            .option("password", self.rsf_pswd) \
+            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
+            .load()
+        print("initKinesis::lookupTableDF::", self.lookupTableDF)
+        self.lookupTableDF.show()
+        self.lookupTableDF.describe()
+        
 
     def readData(self):
         print("readData")
-        
-        def processRDD(rdd):
+        lookupTable_pdf = self.lookupTableDF.toPandas()
+        print("readData::jd:", lookupTable_pdf)
+        pdf_j = lookupTable_pdf.to_json(orient="records")
+        broadcast_dept = self.sc.broadcast(json.loads(pdf_j)) #[{"id":1, "name": "dept-1"},{"id":2, "name": "dept-2"}])
+        print("initKinesis::broadcast_dept:", broadcast_dept, broadcast_dept.value)
+
+        def processRDD(rdd, broadcast_dept):
             print("processRDD::rdd:%s" % (rdd))
+            print("processRDD::broadcast_dept:", broadcast_dept, broadcast_dept.value)
             #rdd.foreach(lambda r: print(r))
-                
+            
             if rdd and rdd.isEmpty() == False:
                 print("processRDD::rdd:", rdd)
                 rdd.foreach(lambda r: print(r))
                 
-                def transform(data):
+                def transform(data, broadcast_dept):
                     print("transform::data:", data, type(data))
                     try:
                         json_data = json.loads(data)
                         print("transform::json_data:", json_data, type(json_data))
+                        #brdcst_dept_record = broadcast_dept.value(json_data.get("number", 0))
+                        #print("transform::broadcast_dept:", broadcast_dept.value)
+                        json_data["dept_name"] = "None"
+                        for e in broadcast_dept.value:
+                            print("transform::broadcast_dept.val.e:", e.get("id"), ", json_data:", json_data.get("number"))
+                            if int(e.get("id", 0)) == int(json_data.get("number", -1)):
+                                print("transform::------ MATCH FOUND --------")
+                                json_data["dept_name"] = e.get("name")
+                                break
                         return json_data
                     except Exception as ex:
                         print("transform::Exception parsing json:", data, ex)
@@ -90,11 +117,11 @@ class MyPySparkApp:
                 
                 try:
                     print("processRDD::Converting to Json")
-                    jsonRDD = rdd.map(lambda r: transform(r)) #json.loads, lambda r: transform(r)
+                    jsonRDD = rdd.map(lambda r: transform(r, broadcast_dept)) #json.loads, lambda r: transform(r)
                     print("processRDD::jsonRDD:", jsonRDD)
                     jsonRDD.foreach(lambda r: print(r))
                     print("processRDD::Converting to New Struct")
-                    myStructType = StructType([StructField("message", StringType(), True), StructField("number", IntegerType(), True)])
+                    myStructType = StructType([StructField("message", StringType(), True), StructField("number", IntegerType(), True), StructField("dept_name", StringType(), True)])
                     jsonRddDF = self.spark.createDataFrame(jsonRDD, myStructType)
                     jsonRddDF.show()
                     jsonRddDF.describe()
@@ -121,7 +148,7 @@ class MyPySparkApp:
                     print("processRDD::JSON-Decode-Error::", ex)
                 
 
-        self.kinesisStream.foreachRDD(lambda r: processRDD(r))
+        self.kinesisStream.foreachRDD(lambda r: processRDD(r, broadcast_dept))
     
     #https://docs.aws.amazon.com/redshift/latest/dg/t_creating_database.html
     #create table testtable (message varchar(256));
