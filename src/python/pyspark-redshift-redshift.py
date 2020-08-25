@@ -80,19 +80,54 @@ class MyPySparkApp:
         self.projectsDF.show()
         self.projectsDF.describe()
         
-        #Empty DF
+        #emp_number int, emp_name varchar, dept_name varchar, emp_id int, dept_id int
         emp_dept_sch = StructType([StructField('emp_number', IntegerType(), True), StructField('emp_name', StringType(), True), StructField('dept_name', StringType(), True), StructField('emp_id', IntegerType(), True), StructField('dept_id', IntegerType(), True)])
         emp_dept_df = self.spark.createDataFrame(self.spark.sparkContext.emptyRDD(), emp_dept_sch)
         emp_dept_df.printSchema()
         print("emp_dept_df::%s" % type(emp_dept_df))
+        
+        #emp_number int, emp_name varchar, proj_name varchar, emp_id int, proj_id int
+        emp_proj_sch = StructType([StructField('emp_number', IntegerType(), True), StructField('emp_name', StringType(), True), StructField('proj_name', StringType(), True), StructField('emp_id', IntegerType(), True), StructField('proj_id', IntegerType(), True)])
+        emp_proj_df = self.spark.createDataFrame(self.spark.sparkContext.emptyRDD(), emp_proj_sch)
+        emp_proj_df.printSchema()
+        print("emp_proj_df::%s" % type(emp_proj_df))
+        
         #Adding Empt to couple of depts
-        print("Sample DeptDF Rows:")
-        self.deptDF.sample(0.5).show()
+        #print("Sample DeptDF Rows:")
+        #self.deptDF.sample(0.5).show()
+
+        userinput_dept = ["Dept1", "Dept2"]
+        userinput_emp = "Sunil"
+        userinput_proj = ["Proj1", "Proj4"]
         for erow in self.empDF.rdd.collect():
-            for drow in self.deptDF.rdd.collect():
-                print("erow:", erow, ",drow:", drow)
-                newDf = self.spark.createDataFrame([(erow['emp_number'], erow['emp_name'], drow['name'], erow['emp_id'], drow['id'])], emp_dept_sch)
-                emp_dept_df = emp_dept_df.union(newDf)
+            if erow['emp_name'] == userinput_emp:
+                for drow in self.deptDF.rdd.collect():
+                    print("erow:", erow, ",drow:", drow)
+                    if drow['name'] in userinput_dept:
+                        #emp_number int, emp_name varchar, dept_name varchar, emp_id int, dept_id int
+                        newDf = self.spark.createDataFrame([(erow['emp_number'], erow['emp_name'], drow['name'], erow['emp_id'], drow['id'])], emp_dept_sch)
+                        emp_dept_df = emp_dept_df.union(newDf)
+        emp_dept_df.show()
+        
+        for erow in self.empDF.rdd.collect():
+            if erow['emp_name'] == userinput_emp:
+                for prow in self.projectsDF.rdd.collect():
+                    print("erow:", erow, ",prow:", prow)
+                    if prow['proj_name'] in userinput_proj:
+                        #proj_id int, proj_name varchar
+                        #emp_number int, emp_name varchar, proj_name varchar, emp_id int, proj_id int
+                        newDf = self.spark.createDataFrame([(erow['emp_number'], erow['emp_name'], prow['proj_name'], erow['emp_id'], prow['proj_id'])], emp_proj_sch)
+                        emp_proj_df = emp_proj_df.union(newDf)
+        emp_proj_df.show()
+        
+        emp_proj_df.createOrReplaceTempView("emp_proj")
+        emp_dept_df.createOrReplaceTempView("emp_dept")
+
+
+        #emp_number int, emp_name varchar, emp_id int, projects_count int, projects_names varchar, dept_count int, dept_name varchar
+        emp_details = "select ed.emp_number, ed.emp_name, count(ed.dept_id) as dept_count, CAST(collect_set(ed.dept_name) AS STRING) as dept_name, count(ep.proj_id) as projects_count, CAST(collect_set(ep.proj_name) AS STRING) as projects_names from emp_dept ed inner join emp_proj ep on ed.emp_id = ep.emp_id group by ed.emp_number, ed.emp_name "
+        emp_details_df = self.spark.sql(emp_details)
+        emp_details_df.show()
 
         #for ee in self.empDF:
             #for ed in self.deptDF.sample(0.5):
@@ -101,7 +136,6 @@ class MyPySparkApp:
                 #newDf = self.spark.createDataFrame([(ee.emp_number, ee.emp_name, ed.dept_name, ee.emp_id, ed.dept_id)], [int, str, str, int, int])
                 #emp_dept_df = emp_dept_df.union(newDf)
         
-        emp_dept_df.show()
         #Lets persis this new DF
         emp_dept_df.write.mode("append") \
             .format("jdbc") \
@@ -112,6 +146,28 @@ class MyPySparkApp:
             .option("driver", "com.amazon.redshift.jdbc42.Driver") \
             .save()
         print("processRDD::successfully wrote the emp_dept_df")
+
+        emp_proj_df.write.mode("append") \
+            .format("jdbc") \
+            .option("url", self.snk_rsf_jdbc_url) \
+            .option("dbtable", "emp_proj") \
+            .option("user", self.snk_rsf_user) \
+            .option("password", self.snk_rsf_pswd) \
+            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
+            .save()
+        print("processRDD::successfully wrote the emp_proj_df")
+
+        emp_details_df.write.mode("append") \
+            .format("jdbc") \
+            .option("url", self.snk_rsf_jdbc_url) \
+            .option("dbtable", "emp_details") \
+            .option("user", self.snk_rsf_user) \
+            .option("password", self.snk_rsf_pswd) \
+            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
+            .save()
+        print("processRDD::successfully wrote the emp_details_df")
+
+
         
 
 if __name__ == '__main__':
