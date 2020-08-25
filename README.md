@@ -116,3 +116,9 @@ Fix: https://console.aws.amazon.com/ec2/home?region=us-east-1#SecurityGroups:
 1: Add Redshift Inbound Rule to your Master/Driver/Core Security groups
 2: Redshift: https://console.aws.amazon.com/redshiftv2/home?region=us-east-1#modify-cluster?cluster=pyspark-redshift
 Redshift - pyspark-redshift -> Edit -> Network & Security -> Add default/master/core
+
+--pyspark.sql.utils.StreamingQueryException: org.json4s.package$MappingException: Expected object but got JInt(0)
+out = self.kinesis.select(self.kinesis.data.cast('string').alias("data"))
+
+--pyspark.sql.utils.AnalysisException: Complete output mode not supported when there are no streaming aggregations on streaming DataFrames/Datasets;;
+use "append"

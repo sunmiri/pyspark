@@ -25,6 +25,7 @@ aws s3 cp --recursive data s3://$AWS_BUCKET_NAME/data
 aws s3 cp --recursive src/python s3://$AWS_BUCKET_NAME/run/
 aws s3 cp scripts/pyspark-csv.properties s3://$AWS_BUCKET_NAME/run/
 aws s3 cp scripts/pyspark-kinesis.properties s3://$AWS_BUCKET_NAME/run/
+aws s3 cp scripts/pyspark-kinesis-ss.properties s3://$AWS_BUCKET_NAME/run/
 aws s3 cp scripts/spark_config.json s3://$AWS_BUCKET_NAME/run/
 #Copy Libs
 aws s3 cp lib/spark-streaming-kinesis-asl-assembly_2.12-3.0.0.jar s3://$AWS_BUCKET_NAME/lib/
