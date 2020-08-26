@@ -99,6 +99,7 @@ class MyPySparkApp:
         userinput_dept = ["Dept1", "Dept2"]
         userinput_emp = "Sunil"
         userinput_proj = ["Proj1", "Proj4"]
+        """
         for erow in self.empDF.rdd.collect():
             if erow['emp_name'] == userinput_emp:
                 for drow in self.deptDF.rdd.collect():
@@ -108,7 +109,24 @@ class MyPySparkApp:
                         newDf = self.spark.createDataFrame([(erow['emp_number'], erow['emp_name'], drow['name'], erow['emp_id'], drow['id'])], emp_dept_sch)
                         emp_dept_df = emp_dept_df.union(newDf)
         emp_dept_df.show()
+        """
+        self.empDF.createOrReplaceTempView("emp")
+        self.deptDF.createOrReplaceTempView("dept")
+        sql = "select e.emp_number, e.emp_name, d.name as dept_name, emp_id, d.id as dept_id from emp e, dept d where e.emp_name in (\"Sandeep\") and d.name in (\"Dept3\",\"Dept1\")"
+        print("sql:%s" % sql)
+        emp_dept_df = self.spark.sql(sql)
+        emp_dept_df.show()
+        emp_dept_df.write.mode("append") \
+            .format("jdbc") \
+            .option("url", self.snk_rsf_jdbc_url) \
+            .option("dbtable", "emp_dept") \
+            .option("user", self.snk_rsf_user) \
+            .option("password", self.snk_rsf_pswd) \
+            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
+            .save()
+        print("processRDD::successfully wrote the emp_dept_df")
         
+        """
         for erow in self.empDF.rdd.collect():
             if erow['emp_name'] == userinput_emp:
                 for prow in self.projectsDF.rdd.collect():
@@ -119,13 +137,29 @@ class MyPySparkApp:
                         newDf = self.spark.createDataFrame([(erow['emp_number'], erow['emp_name'], prow['proj_name'], erow['emp_id'], prow['proj_id'])], emp_proj_sch)
                         emp_proj_df = emp_proj_df.union(newDf)
         emp_proj_df.show()
+        """
+        self.empDF.createOrReplaceTempView("emp")
+        self.projectsDF.createOrReplaceTempView("projects")
+        #emp_number int, emp_name varchar, proj_name varchar, emp_id int, proj_id int
+        sql = "select e.emp_number, e.emp_name, p.proj_name, e.emp_id, p.proj_id from emp e, projects p where e.emp_name in (\"Sandeep\") and p.proj_name in (\"Proj5\",\"Proj2\")"
+        print("sql:%s" % sql)
+        emp_proj_df = self.spark.sql(sql)
+        emp_proj_df.show()
+        emp_proj_df.write.mode("append") \
+            .format("jdbc") \
+            .option("url", self.snk_rsf_jdbc_url) \
+            .option("dbtable", "emp_proj") \
+            .option("user", self.snk_rsf_user) \
+            .option("password", self.snk_rsf_pswd) \
+            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
+            .save()
+        print("processRDD::successfully wrote the emp_proj_df")
         
         emp_proj_df.createOrReplaceTempView("emp_proj")
         emp_dept_df.createOrReplaceTempView("emp_dept")
 
-
         #emp_number int, emp_name varchar, emp_id int, projects_count int, projects_names varchar, dept_count int, dept_name varchar
-        emp_details = "select ed.emp_number, ed.emp_name, count(ed.dept_id) as dept_count, CAST(collect_set(ed.dept_name) AS STRING) as dept_name, count(ep.proj_id) as projects_count, CAST(collect_set(ep.proj_name) AS STRING) as projects_names from emp_dept ed inner join emp_proj ep on ed.emp_id = ep.emp_id group by ed.emp_number, ed.emp_name "
+        emp_details = "select ed.emp_number, ed.emp_name, count(distinct(ed.dept_id)) as dept_count, CAST(collect_set(distinct(ed.dept_name)) AS STRING) as dept_name, count(distinct(ep.proj_id)) as projects_count, CAST(collect_set(distinct(ep.proj_name)) AS STRING) as projects_names from emp_dept ed inner join emp_proj ep on ed.emp_id = ep.emp_id group by ed.emp_number, ed.emp_name "
         emp_details_df = self.spark.sql(emp_details)
         emp_details_df.show()
 
@@ -137,26 +171,6 @@ class MyPySparkApp:
                 #emp_dept_df = emp_dept_df.union(newDf)
         
         #Lets persis this new DF
-        emp_dept_df.write.mode("append") \
-            .format("jdbc") \
-            .option("url", self.snk_rsf_jdbc_url) \
-            .option("dbtable", "emp_dept") \
-            .option("user", self.snk_rsf_user) \
-            .option("password", self.snk_rsf_pswd) \
-            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
-            .save()
-        print("processRDD::successfully wrote the emp_dept_df")
-
-        emp_proj_df.write.mode("append") \
-            .format("jdbc") \
-            .option("url", self.snk_rsf_jdbc_url) \
-            .option("dbtable", "emp_proj") \
-            .option("user", self.snk_rsf_user) \
-            .option("password", self.snk_rsf_pswd) \
-            .option("driver", "com.amazon.redshift.jdbc42.Driver") \
-            .save()
-        print("processRDD::successfully wrote the emp_proj_df")
-
         emp_details_df.write.mode("append") \
             .format("jdbc") \
             .option("url", self.snk_rsf_jdbc_url) \
@@ -167,7 +181,8 @@ class MyPySparkApp:
             .save()
         print("processRDD::successfully wrote the emp_details_df")
 
-
+        self.sc.stop()
+        
         
 
 if __name__ == '__main__':
