@@ -70,6 +70,8 @@ class MyPySparkApp:
         print("readData::kafka_data_df(1)::", kafka_data_df)
         kafka_data_df = kafka_data_df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
         print("readData::kafka_data_df(2)::", kafka_data_df)
+        #kafka_data_df.show()
+        kafka_data_df.printSchema()
         kafka_data_df.writeStream.format("console").outputMode("append").start().awaitTermination()
         
     
@@ -96,4 +98,17 @@ if __name__ == '__main__':
 #FAQ
 #1
 #20/09/01 18:04:06 WARN NetworkClient: [Consumer clientId=consumer-spark-kafka-source-311c5061-6582-4a61-80f7-6296ced6ef3b-135981209-driver-0-1, groupId=spark-kafka-source-311c5061-6582-4a61-80f7-6296ced6ef3b-135981209-driver-0] Connection to node -2 (b-2.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com/10.0.0.19:9092) could not be established. Broker may not be available.
-#Fix:
+#Fix: Start with Same Subnet and SecurityGroup as CLuster. EMR, MSK, VM all are on same SecurityGroup/Subnet/VPC
+
+#2
+"""
+readData::kafka_data_df(1):: DataFrame[key: binary, value: binary, topic: string, partition: int, offset: bigint, timestamp: timestamp, timestampType: int]
+readData::kafka_data_df(2):: DataFrame[key: string, value: string]
+Traceback (most recent call last):
+  File "/usr/lib/spark/python/lib/pyspark.zip/pyspark/sql/utils.py", line 63, in deco
+  File "/usr/lib/spark/python/lib/py4j-0.10.7-src.zip/py4j/protocol.py", line 328, in get_return_value
+py4j.protocol.Py4JJavaError: An error occurred while calling o91.awaitTermination.
+: org.apache.spark.sql.streaming.StreamingQueryException: Bad return type
+Exception Details:
+  Location:
+"""

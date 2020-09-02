@@ -23,3 +23,7 @@ https://docs.aws.amazon.com/msk/latest/developerguide/create-vpc.html
 
 EMR + AWS-MSK (kafka)
 https://console.aws.amazon.com/iam/home?region=us-east-1#/roles/EMR_EC2_DefaultRole
+
+scp -i ../AWS/sunil-aws-emr-key-pair-east1.pem -r scripts  ec2-user@ec2-54-209-182-75.compute-1.amazonaws.com:~/pyspark
+scp -i ../AWS/sunil-aws-emr-key-pair-east1.pem -r src  ec2-user@ec2-54-209-182-75.compute-1.amazonaws.com:~/pyspark
+scp -i ../AWS/sunil-aws-emr-key-pair-east1.pem lib/*.jar  ec2-user@ec2-54-209-182-75.compute-1.amazonaws.com:~/pyspark/lib/

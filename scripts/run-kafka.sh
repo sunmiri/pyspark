@@ -6,12 +6,12 @@ if [[ -d "$APP_HOME_DIR/venv" ]]
 then
     echo "Sourcing Python Virtual Env"
     source $APP_HOME_DIR/venv/bin/activate
-    pip install pyspark jproperties argparse json
+    pip3 install pyspark jproperties argparse json
 else
     echo "Creating Virtual Env in current dir $(pwd)"
     python3 -m venv venv
     source $APP_HOME_DIR/venv/bin/activate
-    pip install pyspark jproperties argparse json
+    pip3 install pyspark jproperties argparse json
 fi
 
 #Runtime: it picks from <home>/.aws/credentials (aws configure)
@@ -28,7 +28,7 @@ echo "PATH $PATH"
 cd $APP_HOME_DIR/src/python/
 #Option:1
 $SPARK_HOME/bin/spark-submit --master local[4] \
-    --jars "$APP_HOME_DIR/lib/spark-sql-kafka-0-10_2.12-3.0.0.jar,$APP_HOME_DIR/lib/spark-streaming-kafka-0-10-assembly_2.12-3.0.0.jar" \
+    --jars "$APP_HOME_DIR/lib/spark-streaming-kafka-0-10-assembly_2.12-3.0.0.jar,$APP_HOME_DIR/lib/spark-sql-kafka-0-10_2.12-3.0.0.jar,$APP_HOME_DIR/lib/commons-pool2-2.8.1.jar" \
     pyspark-kafka.py --p $APP_HOME_DIR/scripts/pyspark-kafka.properties
 
 #--jars "$APP_HOME_DIR/lib/spark-sql-kafka-0-10_2.12-3.0.0.jar,$APP_HOME_DIR/lib/spark-streaming-kafka-0-10_2.12-3.0.0.jar,$APP_HOME_DIR/lib/spark-core_2.12-3.0.0.jar,$APP_HOME_DIR/lib/kafka-clients-2.4.1.jar" \
