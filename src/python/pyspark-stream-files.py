@@ -42,6 +42,9 @@ class MyPySparkApp:
         self.sink_folder = kwargs.get("sink.folder")
         
         self.conf = SparkConf().setAppName(self.appname)
+        for e in kwargs:
+            if e.find("conf.spark.") != -1:
+                self.conf.set(e, kwargs.get(e))
         print("__init__::self.conf:%s" % self.conf)
 
         self.sc = SparkContext(conf=self.conf)
@@ -61,13 +64,15 @@ class MyPySparkApp:
         print("startApp")
 
         def udfDistinctAggregation(key, pdf):
-            #print("udfDistinctAggregation::pdf:", type(pdf), key, pdf)
-            #print("udfDistinctAggregation::key:", key)
-            #print("udfDistinctAggregation::pdf:", pdf)
-            #pd.DataFrame([key + (pdf.v.mean(),)])
+            print("udfDistinctAggregation::key:", key, ", pdf:", pdf)
             _pdf = pdf.groupby(['emp_name'])['dept_name'].apply(lambda x: ','.join(x)).reset_index()
-            print("udfDistinctAggregation::_pdf:", _pdf)
-            return _pdf[['emp_name']]
+            print("udfDistinctAggregation::_pdf1:", _pdf)
+            #return pd.concat(_pdf[['emp_name']], _pdf[['dept_name']])
+            _pdf = _pdf["emp_name"] + _pdf["dept_name"]
+            df_combined = pd.DataFrame(_pdf, columns=['emp_name'])
+            print("udfDistinctAggregation::df_combined:", df_combined)
+            return df_combined
+            
 
         #spark.udf.register("distAggUDF", udfDistinctAggregation,StringType())
         #distAggUDF = udf(lambda c: udfDistinctAggregation(c),StringType())

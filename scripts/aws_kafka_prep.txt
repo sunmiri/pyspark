@@ -1,0 +1,25 @@
+https://docs.aws.amazon.com/msk/latest/developerguide/create-vpc.html
+1  sudo yum install java-1.8.0
+2  cd
+3  wget https://archive.apache.org/dist/kafka/2.2.1/kafka_2.12-2.2.1.tgz
+4  tar -xzf kafka_2.12-2.2.1.tgz
+5  cd kafka_2.12-2.2.1/
+6  aws kafka describe-cluster --region us-east-1 --cluster-arn arn:aws:kafka:us-east-1:962077010122:cluster/AWSKafkaTutorialCluster/e1002609-2182-4df9-a7ce-25bd9b09e699-10
+7  aws configure
+8  aws kafka describe-cluster --region us-east-1 --cluster-arn arn:aws:kafka:us-east-1:962077010122:cluster/AWSKafkaTutorialCluster/e1002609-2182-4df9-a7ce-25bd9b09e699-10
+9  bin/kafka-topics.sh --create --zookeeper z-2.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:2181,z-1.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:2181,z-3.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:2181 --replication-factor 2 --partitions 2 --topic AWSKafkaTutorialTopic
+10  cp /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.amzn2.0.1.x86_64/jre/lib/security/cacerts /tmp/kafka.client.truststore.jks
+11  cd bin/
+12  vi client.properties
+13  aws kafka get-bootstrap-brokers --region us-east-1 --cluster-arn arn:aws:kafka:us-east-1:962077010122:cluster/AWSKafkaTutorialCluster/e1002609-2182-4df9-a7ce-25bd9b09e699-10
+14  ./kafka-console-producer.sh --broker-list b-1.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092,b-2.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092 --producer.config client.properties --topic AWSKafkaTutorialTopic
+15  vi client.properties 
+16  ./kafka-console-producer.sh --broker-list b-1.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092,b-2.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092 --producer.config client.properties --topic AWSKafkaTutorialTopic
+17  vi client.properties 
+18  cls
+19  clear
+20  ./kafka-console-producer.sh --broker-list b-1.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092,b-2.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092 --producer.config client.properties --topic AWSKafkaTutorialTopic
+22  ./kafka-console-consumer.sh --bootstrap-server b-1.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092,b-2.awskafkatutorialclust.bdn76x.c10.kafka.us-east-1.amazonaws.com:9092 --consumer.config client.properties --group pyspark_kafka_cli --topic AWSKafkaTutorialTopic --from-beginning
+
+EMR + AWS-MSK (kafka)
+https://console.aws.amazon.com/iam/home?region=us-east-1#/roles/EMR_EC2_DefaultRole
