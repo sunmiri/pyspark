@@ -72,7 +72,9 @@ class MyPySparkApp:
         print("readData::kafka_data_df(2)::", kafka_data_df)
         #kafka_data_df.show()
         kafka_data_df.printSchema()
-        kafka_data_df.writeStream.format("console").outputMode("append").start().awaitTermination()
+        #kafka_data_df.writeStream.format("console").outputMode("append").start().awaitTermination()
+        kafka_data_df.writeStream.format("dynamodb").option("tableName", "pyspark-test").save().start().awaitTermination()
+        
         
     
     def start(self):
