@@ -35,12 +35,15 @@ class MyPySparkApp:
         self.src_format = kwargs.get("data.source.format", "json")
 
         self.kfk_topic = kwargs.get("data.source.kafka.topic")
+        self.kfk_topic_out = kwargs.get("data.sink.kafka.topic")
         self.kfk_brokers = kwargs.get("data.source.kafka.brokers")
-        self.kfk_zookeeper = kwargs.get("data.source.kafka.zookeeper")
-        self.kfk_region = kwargs.get("data.source.kafka.region", "us-east-1")
         self.kfk_start = kwargs.get("data.source.kafka.startingposition", "latest")
         self.kfk_chkpointint = kwargs.get("data.source.kafka.checkpointinterval", 10)
         self.kfk_auto_commit = kwargs.get("enable.auto.commit", True)
+        self.sasl_protocol = kwargs.get("security.protocol", "SASL_SSL")
+        self.sasl_mech = kwargs.get("sasl.mechanisms", "PLAIN")
+        self.sasl_username = kwargs.get("sasl.username")
+        self.sasl_password = kwargs.get("sasl.password")
 
         self.conf = SparkConf().setAppName(self.appname)
         print("__init__::self.conf:%s" % self.conf)
@@ -59,11 +62,14 @@ class MyPySparkApp:
             .option("kafka.bootstrap.servers", self.kfk_brokers) \
             .option("group.id", self.appname) \
             .option("subscribe", self.kfk_topic) \
-            .option("security.protocol", "PLAINTEXT") \
-            .option("session.timeout.ms", 6000) \
+            .option("security.protocol", self.sasl_protocol) \
+            .option("session.timeout.ms", 15000) \
             .option("startingOffsets", "earliest") \
+            .option("sasl.username", self.sasl_username) \
+            .option("sasl.password", self.sasl_password) \
+            .option("sasl.mechanisms", self.sasl_mech) \
             .load()
-        # SASL_SSL
+        # SASL_SSL/PLAINTEXT
         # .option("sasl.username", "yrmfqh3q") \
         # .option("sasl.password", "...") \
         # .option("sasl.mechanisms", "SCRAM-SHA-256") \
@@ -74,9 +80,9 @@ class MyPySparkApp:
         # kafka_data_df.printSchema()
         kafka_data_df.writeStream.format("kafka")\
             .outputMode("append")\
-            .option("checkpointLocation","/tmp/spark-kafka/checkpoint")\
-            .option("kafka.bootstrap.servers", "10.128.0.2:9092,10.128.0.2:9093,10.128.0.2:9094")\
-            .option("topic","yrmfqh3q-default")\
+            .option("checkpointLocation","/tmp/stream/pykafka_ss/")\
+            .option("kafka.bootstrap.servers", self.kfk_brokers)\
+            .option("topic", self.kfk_topic_out)\
             .start()\
             .awaitTermination()
 
@@ -91,11 +97,17 @@ if __name__ == '__main__':
         "spark.stream.batch.duration.secs": "10",
         "data.source.type": "kafka",
         "data.source.format": "json",
-        "data.source.kafka.topic": "yrmfqh3q-test",
+        "data.source.kafka.topic": "test_in",
+        "data.sink.kafka.topic": "test_out",
         "data.source.kafka.group": "pyspark-kafka",
-        "data.source.kafka.brokers": "10.128.0.2:9092,10.128.0.2:9093,10.128.0.2:9094",
+        "data.source.kafka.brokers": "pkc-lgwgm.eastus2.azure.confluent.cloud:9092",
         "data.source.kafka.startingposition": "earliest",
-        "data.source.kafka.checkpointinterval": "5"
+        "data.source.kafka.checkpointinterval": "5",
+        "security.protocol": "SASL_SSL",
+        "sasl.mechanisms": "PLAIN",
+        "sasl.username": "PSBHOQHRR5Q3AIF5",
+        "sasl.password": "your_password",
+        "checkpointdir": "/tmp/stream/pykafka_ss/"
     }
     print("kw::%s" % kw)
     app = MyPySparkApp(**kw)

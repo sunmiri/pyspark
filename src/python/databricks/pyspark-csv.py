@@ -128,6 +128,6 @@ if __name__ == '__main__':
     # for p in configs:
     # print("P:Name:%s, Val:%s" % (p, configs.get(p).data))
     # kw[p] = configs.get(p).data
-    print("configs::%s, kw:%s" % (configs, kw))
+    print("kw:%s" % (kw))
     psl = PySparkLocal(**kw)
     psl.loadFiles()
