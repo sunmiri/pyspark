@@ -1,0 +1,6 @@
+t_id,t_timestamp,t_user,t_item,t_quantity
+trans1,2020-12-16T01:01:01,Sunil001,2020-Mac-Pro-16RAM-512SSD-M1,1
+trans1,2020-12-16T01:01:01,Sunil001,Air-Mouse,1
+trans1,2020-12-16T01:01:01,Sunil001,Air-Pods,1
+trans2,2020-12-16T01:01:01,Kishan001,Bose-NC-W0101,1
+trans3,2020-12-16T01:01:01,Ranjith001,iPhone-12X,1
