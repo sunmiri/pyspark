@@ -1,0 +1,6 @@
+spark.executor.extraJavaOptions -Djava.security.auth.login.config=dbfs:/FileStore/tables/cloudkarafka.jaas
+spark.driver.extraJavaOptions -Djava.security.auth.login.config=dbfs:/FileStore/tables/cloudkarafka.jaas
+spark.databricks.delta.preview.enabled true
+spark.jars dbfs:/FileStore/tables/spark_streaming_kafka_0_10_assembly_2_12_3_0_1.jar,dbfs:/FileStore/tables/spark_sql_kafka_0_10_2_12_3_0_1.jar
+spark.streaming.stopGracefullyOnShutdown true
+spark.serializer org.apache.spark.serializer.KryoSerializer
