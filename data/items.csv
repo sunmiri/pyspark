@@ -1,2 +1,6 @@
-iid,iname,istatus
-II,IN,IS
+itemName,itemDesc,isActive,createdDate
+SKU0001,Chips,1,2020-11-01
+SKU0002,Beer,1,2020-11-02
+SKU0003,Soda,1,2020-11-03
+SKU0004,Water,1,2020-11-04
+SKU0005,Lemon,1,2020-11-04

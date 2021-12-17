@@ -1,0 +1,9 @@
+siteName,siteDesc,isActive,createdDate,region,country,state
+SC0001,"Frisco MainSt Kroger",1,2007-01-01,SOUTH_CENTRAL,USA,TX
+SC0002,"Frisco Lebonan Kroger",1,2005-01-01,SOUTH_CENTRAL,USA,TX
+SC0003,"Irving MacArthur Kroger",1,2000-01-01,SOUTH_CENTRAL,USA,TX
+SC0004,"FortWorth Basswood Kroger",1,1990-01-01,SOUTH_CENTRAL,USA,TX
+SC0005,"Dublin MainSt Safeway",1,1990-01-01,EAST_BAY,USA,CA
+SC0006,"Seattle MainSt Kroger",1,1990-01-01,NORTH_WEST,USA,WA
+SC0007,"Atlanta Perimeter Walmart",1,1990-01-01,SOUTH_EAST,USA,GA
+SC0008,"Orland DisneyDr Publix",1,1990-01-01,SOUTH_EAST,USA,FL

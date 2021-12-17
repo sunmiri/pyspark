@@ -1,2 +1,5 @@
-uid,uname,ustatus
-UI,UN,US
+userName,displayName,isActive,createdDate,lastModifiedDate
+Tom,Tom,1,2019-11-01,2020-11-01
+Drew,Drew,1,2019-11-02,2020-11-02
+Aaron,Aaron,1,2019-11-03,2020-11-03
+Dak,Dak,0,2019-11-04,2020-11-04
